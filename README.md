@@ -18,4 +18,3 @@ ORM(Object Relational Mapping)은 데이터베이스를 객체 지향 프로그�
 
 1. [Knex - Query Builder](queryBuilder.md)
 1. [Knex - Schema Builder](schemaBuilder.md)
-1. [URL Shortener using Knex](urlShortener.md)
