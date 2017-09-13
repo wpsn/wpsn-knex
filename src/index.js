@@ -42,6 +42,11 @@ app.post('/login', urlencodedMiddleware, (req, res) => {
     })
 })
 
+app.post('/logout', authMiddleware, (req, res) => {
+  req.session = null
+  res.redirect('/login')
+})
+
 app.get('/', authMiddleware, (req, res) => {
   query.url_entry.list(req.user.id)
     .then(entries => {
