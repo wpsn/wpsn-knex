@@ -14,7 +14,17 @@ ORM(Object Relational Mapping)은 데이터베이스를 객체 지향 프로그�
 
 이 강의에서 사용할 Knex.js는 Node.js와 브라우저 위에서 사용가능한 쿼리 빌더입니다. SQL과 비슷한 형태의 문법을 가지고 있고, 또 마이그레이션 기능을 내장하고 있어 널리 사용되고 있습니다. 또한 MySQL, Postgres, MSSQL, Oracle과 같은 유명한 DBMS를 지원합니다.
 
-## 목차
+## Knex Tutorial
 
 1. [Knex - Query Builder](queryBuilder.md)
 1. [Knex - Schema Builder](schemaBuilder.md)
+
+## 기타 주제
+
+- [validator](https://www.npmjs.com/package/validator)를 통한 사용자 입력 데이터의 검증
+- [Knex migration](http://knexjs.org/#Migrations)
+- [Knex seed](http://knexjs.org/#Seeds-CLI)
+- 데이터베이스 동시성 + Atomic update
+- N+1 query problem
+- [bcrypt](https://www.npmjs.com/package/bcrypt)를 이용한 패스워드 보안
+- [connect-flash](https://www.npmjs.com/package/connect-flash)를 이용한 피드백 메시징
