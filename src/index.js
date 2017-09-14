@@ -3,7 +3,6 @@ const cookieSession = require('cookie-session')
 const bodyParser = require('body-parser')
 
 const query = require('./query')
-const knex = require('./knex')
 
 const app = express()
 const urlencodedMiddleware = bodyParser.urlencoded({ extended: false })
@@ -16,9 +15,7 @@ app.set('view engine', 'ejs')
 
 function authMiddleware(req, res, next) {
   if (req.session.id) {
-    knex('user')
-      .where({id: req.session.id})
-      .first()
+    query.getUserById(req.session.id)
       .then(matched => {
         req.user = matched
         res.locals.user = matched
@@ -30,10 +27,7 @@ function authMiddleware(req, res, next) {
 }
 
 app.get('/', authMiddleware, (req, res) => {
-  knex('url_entry')
-    .where({
-      user_id: req.user.id
-    })
+  query.getUrlEntriesByUserId(req.user.id)
     .then(rows => {
       res.render('index.ejs', {rows})
     })
@@ -44,12 +38,7 @@ app.get('/login', (req, res) => {
 })
 
 app.post('/login', urlencodedMiddleware, (req, res) => {
-  knex('user')
-    .where({
-      id: req.body.username,
-      password: req.body.password
-    })
-    .first()
+  query.getUser(req.body.username, req.body.password)
     .then(matched => {
       if (matched) {
         req.session.id = matched.id
