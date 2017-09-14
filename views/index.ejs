@@ -1,7 +1,11 @@
+<form action="/logout" method="post">
+  <input type="submit" value="로그아웃">
+</form>
+
 <table>
-  <% entries.forEach(entry => { %>
+  <% rows.forEach(entry => { %>
     <tr>
-      <td><%= entry.short_url %></td>
+      <td><%= entry.id %></td>
       <td><%= entry.long_url %></td>
     </tr>
   <% }) %>
