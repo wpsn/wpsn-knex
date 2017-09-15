@@ -55,6 +55,25 @@ app.post('/logout', (req, res) => {
   res.redirect('/login')
 })
 
+app.post('/url_entry', authMiddleware, urlencodedMiddleware, (req, res) => {
+  const long_url = req.body.long_url
+  query.createUrlEntry(long_url, req.user.id)
+    .then(() => {
+      res.redirect('/')
+    })
+})
+
+app.get('/:id', (req, res, next) => {
+  query.getUrlById(req.params.id)
+    .then(entry => {
+      if (entry) {
+        res.redirect(entry.long_url)
+      } else {
+        next()
+      }
+    })
+})
+
 app.listen(3000, () => {
   console.log('listening...')
 })
