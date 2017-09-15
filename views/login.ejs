@@ -9,3 +9,7 @@
   </label>
   <input type="submit" value="로그인">
 </form>
+
+<% errors.forEach(error => { %>
+  <p><%= error %></p>
+<% }) %>

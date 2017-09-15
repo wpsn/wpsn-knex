@@ -2,6 +2,7 @@ const express = require('express')
 const cookieSession = require('cookie-session')
 const bodyParser = require('body-parser')
 const bcrypt = require('bcrypt')
+const flash = require('connect-flash')
 
 const query = require('./query')
 
@@ -12,6 +13,7 @@ app.use(cookieSession({
   name: 'session',
   keys: ['mysecret']
 }))
+app.use(flash())
 app.set('view engine', 'ejs')
 
 function authMiddleware(req, res, next) {
@@ -35,7 +37,7 @@ app.get('/', authMiddleware, (req, res) => {
 })
 
 app.get('/login', (req, res) => {
-  res.render('login.ejs')
+  res.render('login.ejs', {errors: req.flash('error')})
 })
 
 app.post('/login', urlencodedMiddleware, (req, res) => {
@@ -45,8 +47,8 @@ app.post('/login', urlencodedMiddleware, (req, res) => {
         req.session.id = matched.id
         res.redirect('/')
       } else {
-        res.status(400)
-        res.send('400 Bad Request')
+        req.flash('error', '아이디 혹은 비밀번호가 일치하지 않습니다.')
+        res.redirect('/login')
       }
     })
 })
@@ -61,6 +63,10 @@ app.post('/url_entry', authMiddleware, urlencodedMiddleware, (req, res) => {
   query.createUrlEntry(long_url, req.user.id)
     .then(() => {
       res.redirect('/')
+    })
+    .catch(err => {
+      res.status(400)
+      res.send(err.message)
     })
 })
 
