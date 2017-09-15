@@ -1,6 +1,7 @@
 const express = require('express')
 const cookieSession = require('cookie-session')
 const bodyParser = require('body-parser')
+const bcrypt = require('bcrypt')
 
 const query = require('./query')
 
@@ -38,9 +39,9 @@ app.get('/login', (req, res) => {
 })
 
 app.post('/login', urlencodedMiddleware, (req, res) => {
-  query.getUser(req.body.username, req.body.password)
+  query.getUserById(req.body.username)
     .then(matched => {
-      if (matched) {
+      if (matched && bcrypt.compareSync(req.body.password, matched.password)) {
         req.session.id = matched.id
         res.redirect('/')
       } else {
