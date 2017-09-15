@@ -67,10 +67,26 @@ app.get('/:id', (req, res, next) => {
   query.getUrlById(req.params.id)
     .then(entry => {
       if (entry) {
-        res.redirect(entry.long_url)
+        query.incrementClickCountById(entry.id)
+          .then(() => {
+            res.redirect(entry.long_url)
+          })
       } else {
         next()
       }
+    })
+})
+
+app.get('/register', (req, res) => {
+  res.render('register.ejs')
+})
+
+app.post('/register', urlencodedMiddleware, (req, res) => {
+  query.createUser(req.body.id, req.body.password)
+    .then(() => {
+      // 로그인
+      req.session.id = req.body.id
+      res.redirect('/')
     })
 })
 

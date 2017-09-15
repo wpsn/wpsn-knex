@@ -14,6 +14,7 @@ knex('user')
         .insert({
           id: randomstring.generate(8),
           long_url: faker.internet.url(),
+          user_id: 'fast'
         }).then(console.log)
     }
   })
