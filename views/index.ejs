@@ -1,8 +1,10 @@
 <form action="/logout" method="post">
+  <input type="hidden" name="_csrf" value="<%= csrfToken %>">
   <input type="submit" value="로그아웃">
 </form>
 
 <form action="/url_entry" method="post">
+  <input type="hidden" name="_csrf" value="<%= csrfToken %>">
   <label>
     URL
     <input type="url" required name="long_url">

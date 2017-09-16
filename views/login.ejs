@@ -3,6 +3,7 @@
 </p>
 
 <form action="/login" method="post">
+  <input type="hidden" name="_csrf" value="<%= csrfToken %>">
   <label>
     아이디
     <input type="text" required name="username">

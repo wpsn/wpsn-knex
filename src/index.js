@@ -4,16 +4,18 @@ const bodyParser = require('body-parser')
 const bcrypt = require('bcrypt')
 const flash = require('connect-flash')
 const validator = require('validator')
+const csurf = require('csurf')
+
 const query = require('./query')
 
 const app = express()
-const urlencodedMiddleware = bodyParser.urlencoded({ extended: false })
-
 app.use(cookieSession({
   name: 'session',
   keys: ['mysecret']
 }))
 app.use(flash())
+app.use(bodyParser.urlencoded({ extended: false }))
+app.use(csurf())
 app.set('view engine', 'ejs')
 
 function authMiddleware(req, res, next) {
@@ -37,15 +39,15 @@ function flashLocalsMiddleware(req, res, next) {
 app.get('/', authMiddleware, flashLocalsMiddleware, (req, res) => {
   query.getUrlEntriesByUserId(req.user.id)
     .then(rows => {
-      res.render('index.ejs', {rows})
+      res.render('index.ejs', {rows, csrfToken: req.csrfToken()})
     })
 })
 
 app.get('/login', flashLocalsMiddleware, (req, res) => {
-  res.render('login.ejs')
+  res.render('login.ejs', {csrfToken: req.csrfToken()})
 })
 
-app.post('/login', urlencodedMiddleware, (req, res) => {
+app.post('/login', (req, res) => {
   query.getUserById(req.body.username)
     .then(matched => {
       if (matched && bcrypt.compareSync(req.body.password, matched.password)) {
@@ -63,7 +65,7 @@ app.post('/logout', (req, res) => {
   res.redirect('/login')
 })
 
-app.post('/url_entry', authMiddleware, urlencodedMiddleware, (req, res) => {
+app.post('/url_entry', authMiddleware, (req, res) => {
   const long_url = req.body.long_url
   query.createUrlEntry(long_url, req.user.id)
     .then(() => {
@@ -95,10 +97,10 @@ app.get('/:id', (req, res, next) => {
 })
 
 app.get('/register', flashLocalsMiddleware, (req, res) => {
-  res.render('register.ejs')
+  res.render('register.ejs', {csrfToken: req.csrfToken()})
 })
 
-app.post('/register', urlencodedMiddleware, (req, res) => {
+app.post('/register', (req, res) => {
   new Promise((resolve, reject) => {
     const {id, password} = req.body
     if (!id || !password) {
