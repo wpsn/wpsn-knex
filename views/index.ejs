@@ -10,10 +10,14 @@
   <input type="submit" value="전송">
 </form>
 
+<% errors.forEach(error => { %>
+  <p><%= error %></p>
+<% }) %>
+
 <table>
   <% rows.forEach(entry => { %>
     <tr>
-      <td><%= entry.id %></td>
+      <td><a href="/<%= entry.id %>"><%= entry.id %></a></td>
       <td><%= entry.long_url %></td>
       <td><%= entry.created_at.toISOString() %></td>
       <td><%= entry.click_count %></td>

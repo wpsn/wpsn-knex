@@ -9,3 +9,8 @@
   </label>
   <input type="submit" value="전송">
 </form>
+<div>
+  <% errors.forEach(error => { %>
+    <p><%= error %></p>
+  <% }) %>
+</div>

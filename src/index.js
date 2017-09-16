@@ -3,7 +3,7 @@ const cookieSession = require('cookie-session')
 const bodyParser = require('body-parser')
 const bcrypt = require('bcrypt')
 const flash = require('connect-flash')
-
+const validator = require('validator')
 const query = require('./query')
 
 const app = express()
@@ -29,15 +29,20 @@ function authMiddleware(req, res, next) {
   }
 }
 
-app.get('/', authMiddleware, (req, res) => {
+function flashLocalsMiddleware(req, res, next) {
+  res.locals.errors = req.flash('error')
+  next()
+}
+
+app.get('/', authMiddleware, flashLocalsMiddleware, (req, res) => {
   query.getUrlEntriesByUserId(req.user.id)
     .then(rows => {
       res.render('index.ejs', {rows})
     })
 })
 
-app.get('/login', (req, res) => {
-  res.render('login.ejs', {errors: req.flash('error')})
+app.get('/login', flashLocalsMiddleware, (req, res) => {
+  res.render('login.ejs')
 })
 
 app.post('/login', urlencodedMiddleware, (req, res) => {
@@ -65,8 +70,8 @@ app.post('/url_entry', authMiddleware, urlencodedMiddleware, (req, res) => {
       res.redirect('/')
     })
     .catch(err => {
-      res.status(400)
-      res.send(err.message)
+      req.flash('error', err.message)
+      res.redirect('/')
     })
 })
 
@@ -76,7 +81,12 @@ app.get('/:id', (req, res, next) => {
       if (entry) {
         query.incrementClickCountById(entry.id)
           .then(() => {
-            res.redirect(entry.long_url)
+            const {long_url} = entry
+            if (long_url.match(/https?:\/\//)) {
+              res.redirect(entry.long_url)
+            } else {
+              res.redirect('http://' + entry.long_url)
+            }
           })
       } else {
         next()
@@ -84,16 +94,33 @@ app.get('/:id', (req, res, next) => {
     })
 })
 
-app.get('/register', (req, res) => {
+app.get('/register', flashLocalsMiddleware, (req, res) => {
   res.render('register.ejs')
 })
 
 app.post('/register', urlencodedMiddleware, (req, res) => {
-  query.createUser(req.body.id, req.body.password)
+  new Promise((resolve, reject) => {
+    const {id, password} = req.body
+    if (!id || !password) {
+      reject(new Error('아이디와 비밀번호를 입력하셔야 합니다.'))
+    } else if (id.length > 20) {
+      reject(new Error('아이디는 20자까지만 입력할 수 있습니다.'))
+    } else if (!validator.isAlphanumeric(req.body.id)) {
+      reject(new Error('아이디는 영문자 혹은 숫자만 입력 가능합니다.'))
+    } else if (password.length < 8) {
+      reject(new Error('비밀번호는 8자 이상 입력해야 합니다.'))
+    } else {
+      resolve(bcrypt.hash(req.body.password, 10))
+    }
+  })
+    .then(hash => query.createUser(req.body.id, hash))
     .then(() => {
-      // 로그인
       req.session.id = req.body.id
       res.redirect('/')
+    })
+    .catch(err => {
+      req.flash('error', err.message)
+      res.redirect('/register')
     })
 })
 
