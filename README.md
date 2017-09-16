@@ -21,10 +21,12 @@ ORM(Object Relational Mapping)은 데이터베이스를 객체 지향 프로그�
 
 ## 기타 주제
 
+- [Visual Studio Code를 이용한 Node.js 디버깅](https://code.visualstudio.com/docs/nodejs/nodejs-debugging)
 - [validator](https://www.npmjs.com/package/validator)를 통한 사용자 입력 데이터의 검증
+- Knex 설정과 NODE_ENV 환경변수
 - [Knex migration](http://knexjs.org/#Migrations)
 - [Knex seed](http://knexjs.org/#Seeds-CLI)
-- 데이터베이스 동시성 + Atomic update
+- 데이터베이스 동시성, 잠금, Atomic update
 - N+1 query problem
 - [bcrypt](https://www.npmjs.com/package/bcrypt)를 이용한 패스워드 보안
 - [connect-flash](https://www.npmjs.com/package/connect-flash)를 이용한 피드백 메시징
