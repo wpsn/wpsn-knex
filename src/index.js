@@ -3,18 +3,24 @@ const cookieSession = require('cookie-session')
 const bodyParser = require('body-parser')
 const bcrypt = require('bcrypt')
 const flash = require('connect-flash')
+const csurf = require('csurf')
 
 const query = require('./query')
 
 const app = express()
 const urlencodedMiddleware = bodyParser.urlencoded({ extended: false })
+const csrfMiddleware = csurf()
 
 app.use(cookieSession({
   name: 'session',
   keys: ['mysecret']
 }))
+app.use(urlencodedMiddleware)
+app.use(csrfMiddleware)
 app.use(flash())
 app.set('view engine', 'ejs')
+
+
 
 function authMiddleware(req, res, next) {
   if (req.session.id) {
@@ -32,15 +38,15 @@ function authMiddleware(req, res, next) {
 app.get('/', authMiddleware, (req, res) => {
   query.getUrlEntriesByUserId(req.user.id)
     .then(rows => {
-      res.render('index.ejs', {rows})
+      res.render('index.ejs', {rows, csrfToken: req.csrfToken()})
     })
 })
 
 app.get('/login', (req, res) => {
-  res.render('login.ejs', {errors: req.flash('error')})
+  res.render('login.ejs', {errors: req.flash('error'), csrfToken: req.csrfToken()})
 })
 
-app.post('/login', urlencodedMiddleware, (req, res) => {
+app.post('/login', (req, res) => {
   query.getUserById(req.body.username)
     .then(matched => {
       if (matched && bcrypt.compareSync(req.body.password, matched.password)) {
@@ -58,7 +64,7 @@ app.post('/logout', (req, res) => {
   res.redirect('/login')
 })
 
-app.post('/url_entry', authMiddleware, urlencodedMiddleware, (req, res) => {
+app.post('/url_entry', authMiddleware, (req, res) => {
   const long_url = req.body.long_url
   query.createUrlEntry(long_url, req.user.id)
     .then(() => {
@@ -85,10 +91,10 @@ app.get('/:id', (req, res, next) => {
 })
 
 app.get('/register', (req, res) => {
-  res.render('register.ejs')
+  res.render('register.ejs', {csrfToken: req.csrfToken()})
 })
 
-app.post('/register', urlencodedMiddleware, (req, res) => {
+app.post('/register', (req, res) => {
   query.createUser(req.body.id, req.body.password)
     .then(() => {
       // 로그인
